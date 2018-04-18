@@ -7,42 +7,49 @@ var parseUrlEncoded = bodyParser.urlencoded({ extended: false });
 
 app.set('view engine', 'pug')
 
-var tnxHistory = [
-  {
-    id: "0",
-    type: "credit",
-    amount: 100,
-    effectiveDate: new Date("2018-04-18T14:00:00.000Z"),
-    balance: 100
-  },
-  {
-    id: "1",
-    type: "debit",
-    amount: 50,
-    effectiveDate: new Date("2018-04-18T14:05:00.000Z"),
-    balance: 50
-  },
-  {
-    id: "2",
-    type: "credit",
-    amount: 100,
-    effectiveDate: new Date("2018-04-18T14:15:00.000Z"),
-    balance: 150
-  }
-];
+function Transaction(rawTnx = {}) {
+  if (!rawTnx.id)
+    return {
+      error: "Invalid transaction: id is missing",
+      rawTransaction: rawTnx
+    };
+  else
+    this.id = rawTnx.id.toString(); // for simplicity, the app doesn't check that id is unique
+  if (rawTnx.type !== "debit" && rawTnx.type !== "credit")
+    return {
+      error: `Invalid  transaction: type is ${rawTnx.type}. The only allowed values are "debit" and "credit"`,
+      rawTransaction: rawTnx
+    };
+  else
+    this.type = rawTnx.type;
+  if (!(+rawTnx.amount >= 0))
+    return {
+      error: `Invalid transaction: amount is ${rawTnx.amount}. It should be a non-negative number or anything that casts to a non-negative number.`,
+      rawTransaction: rawTnx
+    };
+  else
+    this.amount = +rawTnx.amount;
+  if (!isNaN(+rawTnx.effectiveDate))
+    this.effectiveDate = new Date(+rawTnx.effectiveDate);
+  else if (!isNaN(Date.parse(rawTnx.effectiveDate)))
+    this.effectiveDate = new Date(rawTnx.effectiveDate);
+  else
+    return {
+      error: `Invalid transaction: effectiveDate is ${rawTnx.effectiveDate}. It should be a number or a string parsable to a date.`,
+      rawTransaction: rawTnx
+    };
+}
 
-app.post("/", parseUrlEncoded, (req, res) => {
-  // console.log(req.body);
-  // TODO validation
-  let newTnx = req.body;
-  newTnx.effectiveDate = new Date(+newTnx.effectiveDate);
+applyTransaction = (tnx) => {
+  newTnx = new Transaction(tnx)
+  if (newTnx.error)
+    return newTnx;
   let i = tnxHistory.length;
-  while (tnxHistory[i - 1].effectiveDate > newTnx.effectiveDate) {
+  while (i > 0 && tnxHistory[i - 1].effectiveDate > newTnx.effectiveDate) {
     i--;
     if (i == 0)
       break;
   }
-  // console.log(i);
   let prev = tnxHistory[i - 1];
   newTnx.balance = prev ? prev.balance : 0; // will be changed later
   // checking that the new transaction doesn't lead to negative balance
@@ -50,17 +57,17 @@ app.post("/", parseUrlEncoded, (req, res) => {
     let b = prev ? prev.balance : 0;
     b -= newTnx.amount;
     if (b < 0) {
-      return res.status(403).json({
+      return {
         "Error": "The transaction has been refused because it would result in negative balance.",
         "badTransaction": {...newTnx, balance: b}
-      });
+      };
     }
     for (var j = i; j < tnxHistory.length; j++) {
       if ((b = tnxHistory[j].balance - newTnx.amount) < 0) {
-        return res.status(403).json({
+        return {
           "Error": "The transaction has been refused because it would result in negative balance after one of subsequent transactions.",
           "badTransaction": {...tnxHistory[j], balance: b}
-        });
+        };
       }
     }
   }
@@ -68,7 +75,21 @@ app.post("/", parseUrlEncoded, (req, res) => {
   for (j = i; j < tnxHistory.length; j++) {
     tnxHistory[j].balance += newTnx.type === "credit" ? newTnx.amount : -newTnx.amount;
   }
-  res.status(201).json(newTnx);
+  return newTnx;
+}
+
+var tnxHistory = [];
+applyTransaction({id: "0", type: "credit", amount: 100, effectiveDate: "2018-04-18T14:00:00.000Z"});
+applyTransaction({id: "1", type: "debit" , amount: 50 , effectiveDate: "2018-04-18T14:05:00.000Z"});
+applyTransaction({id: "2", type: "credit", amount: 100, effectiveDate: "2018-04-18T14:15:00.000Z"});
+tnxHistory;
+
+app.post("/", parseUrlEncoded, (req, res) => {
+  let t = applyTransaction(req.body);
+  if (t.error)
+    res.status(403).json(t);
+  else
+    res.status(201).json(t);
 });
 
 app.get("/", (req, res) => {
