@@ -1,12 +1,55 @@
+//- Some CSS & JS code has been borrowed from w3schools
+//- https://www.w3schools.com/howto/howto_js_accordion.asp
 doctype html
 html
   head
     title Really Simple Accounting System
+    meta(charset="utf-8")
+    style.
+      .credit       {background-color: LightGreen}
+      .debit        {background-color: LightSalmon}
+      .credit:hover {background-color: LimeGreen}
+      .debit:hover  {background-color: Tomato}
+      .credit + div {background-color: HoneyDew}
+      .debit + div  {background-color: SeaShell}
+      .accordion {
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        text-align: left;
+        border: none;
+        outline: none;
+        transition: 0.4s;
+      }
+      .panel {
+        padding: 0 18px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease-out;
+      }
   body
     h2 Really Simple Accounting System
     ul
       each t in tnxHistory
-        if t.type === "credit"
-          li(style="color:green") #{t.id}: #{t.type === "credit" ? '+' : '-'}#{t.amount} at #{t.effectiveDate} -> #{t.balance}
-        else
-          li(style="color:red") #{t.id}: #{t.type === "credit" ? '+' : '-'}#{t.amount} at #{t.effectiveDate} -> #{t.balance}
+        li(class="accordion " + t.type) #{t.id}: #{t.type === "credit" ? '+' : '-'}#{t.amount} at #{t.effectiveDate} -> #{t.balance}
+        div(class="panel")
+          ul
+            li id: #{t.id}
+            li type: #{t.type}
+            li effectiveDate: #{t.effectiveDate}
+            li amount: #{t.amount}
+            li balance: #{t.balance}
+    script.
+      var acc = document.getElementsByClassName("accordion");
+      var i;
+      for (i = 0; i < acc.length; i++) {
+        acc[i].addEventListener("click", function() {
+          this.classList.toggle("active");
+          var panel = this.nextElementSibling;
+          if (panel.style.maxHeight){
+            panel.style.maxHeight = null;
+          } else {
+            panel.style.maxHeight = panel.scrollHeight + "px";
+          }
+        });
+      }
