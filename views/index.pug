@@ -1,0 +1,12 @@
+doctype html
+html
+  head
+    title Really Simple Accounting System
+  body
+    h2 Really Simple Accounting System
+    ul
+      each t in tnxHistory
+        if t.type === "credit"
+          li(style="color:green") #{t.id}: #{t.type === "credit" ? '+' : '-'}#{t.amount} at #{t.effectiveDate} -> #{t.balance}
+        else
+          li(style="color:red") #{t.id}: #{t.type === "credit" ? '+' : '-'}#{t.amount} at #{t.effectiveDate} -> #{t.balance}

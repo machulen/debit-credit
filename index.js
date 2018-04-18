@@ -4,12 +4,15 @@ var insp = require('util').inspect;
 
 var bodyParser = require("body-parser");
 var parseUrlEncoded = bodyParser.urlencoded({ extended: false });
+
+app.set('view engine', 'pug')
+
 var tnxHistory = [
   {
     id: "0",
     type: "credit",
     amount: 100,
-    effectiveDate: new Date("2018-04-18T14:04:50.000Z"),
+    effectiveDate: new Date("2018-04-18T14:00:00.000Z"),
     balance: 100
   },
   {
@@ -23,7 +26,7 @@ var tnxHistory = [
     id: "2",
     type: "credit",
     amount: 100,
-    effectiveDate: new Date("2018-04-18T14:05:30.000Z"),
+    effectiveDate: new Date("2018-04-18T14:15:00.000Z"),
     balance: 150
   }
 ];
@@ -69,19 +72,7 @@ app.post("/", parseUrlEncoded, (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.end(
-`<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Ridiculously Simple Accounting System</title>
-</head>
-<body>
-  <ul>
-  ${tnxHistory.map((t) => "<li style='color:" + (t.type === "credit" ? "green" : "red") + ";'>" + insp(t) + "</li>").join("\n")}
-  </ul>
-</body>
-</html>`);
+  res.render('index', { tnxHistory: tnxHistory });
 })
 
 app.listen(3000, () => console.log("Listening on port 3000"));
