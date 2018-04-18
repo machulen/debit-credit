@@ -19,9 +19,10 @@ node index.js
 and go to http://localhost:3000 in your browser. It should display some sample transactions as a colored list. Click to any transaction entry to view it's details.
 To add a new transaction, make a POST request to http://localhost:3000 with transaction data in x-www-form-urlencoded format like this:
 ```
-curl http://localhost:3000 -X POST -d "id=1&type=credit&effectiveDate=2018-04-18T14:10:00.000Z&amount=25"
+curl http://localhost:3000 -X POST -d "id=3&type=credit&effectiveDate=2018-04-18T14:10:00.000Z&amount=25"
 ```
 The `id`, `type`, `effectiveDate` and `amount` fields are required (without any of them, a transaction faild validation).
+* `id` can be any string but it should be unique. It's up to user how to ensure unique ids.
 * `type` can be `debit` or `credit`, no other values are allowed.
 * `effectiveDate` can be any number or string parsable to Date.
 * `amount` must be a non-negative number or anything that casts to a non-negative number.
@@ -31,6 +32,7 @@ The `id`, `type`, `effectiveDate` and `amount` fields are required (without any 
 2. The App serves a single user, so it only has just one financial account.
 3. The App stores transactions history. For this purpose, in-memory storage is used.
 4. Every incoming transaction is validated. A transaction is considered valid if all required fields are present and have valid values. All other fields are just ignored. Invalid transactions are refused with 403 status code.
+  - Transactions with non-unique `id`s are refused too so you won't spend your money twice.
 5. The desicion about where exactly a new transaction is to be inserted into the history is made based on it's effectiveDate. Thus, the history is always sorted by effectiveDate. It doesn't matter at which time the transaction has actually came.
 6. After adding a transaction, a balance is calculated and stored in the history alongside the transaction data. If there are transactions that have more recent effectiveDate values, their balances are updated accordingly.
 7. Any transaction, which leads to negative balance within the system, is refused with 403 status code. It includes the case when after applying this transaction any other transaction with more recent effectiveDate would result in negative balance.

@@ -43,10 +43,23 @@ class Transaction {
 }
 
 class TransactionHistory extends Array {
+  constructor() {
+    super();
+    // this map is used to ensure unique ids;
+    // it also can be useful should we decide to add an endpoint like /transactions/:id
+    this.idMap = {};
+  }
+  
   applyTransaction(tnx) {
     const newTnx = new Transaction(tnx)
     if (newTnx.error)
       return newTnx;
+
+    if (this.idMap[newTnx.id])
+      return {
+        "Error": "The transaction with this id already exists in the history. The new transaction has been refused.",
+        "badTransaction": newTnx
+      };
 
     // find the right place to incert the new transaction so that the history stays sorted by effectiveDate
     let i = this.length;
@@ -83,6 +96,7 @@ class TransactionHistory extends Array {
     for (let j = i; j < this.length; j++) {
       this[j].balance += newTnx.type === "credit" ? newTnx.amount : -newTnx.amount;
     }
+    this.idMap[newTnx.id] = newTnx;
     return newTnx;
   }
 }
@@ -93,8 +107,8 @@ tnxHistory.applyTransaction({id: "1", type: "debit" , amount: 50 , effectiveDate
 tnxHistory.applyTransaction({id: "2", type: "credit", amount: 100, effectiveDate: "2018-04-18T14:15:00.000Z"});
 
 app.post("/", parseUrlEncoded, (req, res) => {
-  let t = applyTransaction(req.body);
-  if (t.error)
+  let t = tnxHistory.applyTransaction(req.body);
+  if (t.error || t.Error)
     res.status(403).json(t);
   else
     res.status(201).json(t);
