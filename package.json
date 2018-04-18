@@ -1,0 +1,22 @@
+{
+  "name": "debit-credit",
+  "version": "1.0.0",
+  "description": "A really simple single user money accounting system intended to be used through it's REST API.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/machulen/debit-credit.git"
+  },
+  "author": "machulen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/machulen/debit-credit/issues"
+  },
+  "homepage": "https://github.com/machulen/debit-credit#readme",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
