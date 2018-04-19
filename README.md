@@ -1,10 +1,10 @@
 # debit-credit
-A really simple single user money accounting system intended to be used through it's REST API.
+A really simple single user money accounting system intended to be used through its REST API.
 
 ### Install
 This app need's recent version of Node.js as it uses ES6 syntax a lot. It is known to work in Node v9.2.0 and fail in 6.6.0.
 
-Clone the repo and install it's dependencies:
+Clone the repo and install its dependencies:
 ```
 git clone https://github.com/machulen/debit-credit.git
 npm i
@@ -20,7 +20,7 @@ and go to http://localhost:3000 in your browser. You should see an empty page wi
 ```
 ./populate.sh
 ```
-to add some sample transactions and reload the page. (I assume that you have `curl` on your machine.) Now you see a colored list of transactions, where credit ones are green and debit ones are red. Click to any transaction entry to view it's details.
+to add some sample transactions and reload the page. (I assume that you have `curl` on your machine.) Now you see a colored list of transactions, where credit ones are green and debit ones are red. Click to any transaction entry to view its details.
 
 Try to add a new transaction by make a POST request to http://localhost:3000/api with transaction data in x-www-form-urlencoded format like this:
 ```
@@ -56,7 +56,7 @@ The `id`, `type`, `effectiveDate` and `amount` fields are required (without any 
 6. The desicion about where exactly a new transaction is to be inserted into the history is made based on it's effectiveDate. Thus, the history is always sorted by effectiveDate. It doesn't matter at which time the transaction has actually came.
 7. After adding a transaction, a balance is calculated and stored in the history alongside the transaction data. If there are transactions that have more recent effectiveDate values, their balances are updated accordingly.
 8. Any transaction, which leads to negative balance within the system, is refused with 403 status code. It includes the case when after applying this transaction any other transaction with more recent effectiveDate would result in negative balance.
-9. The App is intended to be used programmatically via it's RESTful API. It's not possible to add transactions through it's web interface.
+9. The App is intended to be used programmatically via its RESTful API. It's not possible to add transactions through its web interface.
 10. Once a transaction is added, it can't be removed from the system unless you restart the server.
 11. The application has really simple UI that is accessible by GET request to `/api`.
 12. The UI should displays the transactions history list only.
