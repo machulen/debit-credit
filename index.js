@@ -103,7 +103,7 @@ class TransactionHistory extends Array {
 
 const tnxHistory = new TransactionHistory;
 
-app.post("/", parseUrlEncoded, (req, res) => {
+app.post("/api", parseUrlEncoded, (req, res) => {
   let t = tnxHistory.applyTransaction(req.body);
   if (t.error || t.Error)
     res.status(403).json(t);
