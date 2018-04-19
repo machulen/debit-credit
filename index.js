@@ -102,9 +102,6 @@ class TransactionHistory extends Array {
 }
 
 const tnxHistory = new TransactionHistory;
-tnxHistory.applyTransaction({id: "0", type: "credit", amount: 100, effectiveDate: "2018-04-18T14:00:00.000Z"});
-tnxHistory.applyTransaction({id: "1", type: "debit" , amount: 50 , effectiveDate: "2018-04-18T14:05:00.000Z"});
-tnxHistory.applyTransaction({id: "2", type: "credit", amount: 100, effectiveDate: "2018-04-18T14:15:00.000Z"});
 
 app.post("/", parseUrlEncoded, (req, res) => {
   let t = tnxHistory.applyTransaction(req.body);
